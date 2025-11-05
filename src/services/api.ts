@@ -1,7 +1,9 @@
-import { courses, type Course } from '../data/courses';
-import { comments, type Comment, rankingUsers } from '../data/user';
+import { courses } from '../data/courses';
+import { comments, rankingUsers } from '../data/user';
 import { certificates } from '../data/certificates';
-import { users, validateCredentials, type User } from '../data/users';
+import { users, validateCredentials } from '../data/users';
+import type { Course, Comment, User } from '../types';
+import { http, BASE_URL } from './http';
 
 // Simula delay de rede
 const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
@@ -15,7 +17,7 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
-  role?: 'student' | 'instructor' | 'admin';
+  role?: 'student' | 'teacher' | 'admin';
 }
 
 export interface AuthResponse {
@@ -26,31 +28,23 @@ export interface AuthResponse {
 class ApiService {
   // Autenticação
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    await delay();
-    
-    // TODO: Substituir mock por chamada real
-    // const response = await axios.post('/api/auth/login', credentials);
-    
-    // Validação com usuários mockados
-    const user = validateCredentials(credentials.email, credentials.password);
-    
-    if (user) {
-      return {
-        token: 'fake_jwt_token_' + Date.now(),
-        user: user, // TODO: Em produção, remover senha antes de retornar
-      };
+    if (BASE_URL) {
+      return http.post<AuthResponse>('/users/login', credentials);
     }
-    
+    await delay();
+    const user = validateCredentials(credentials.email, credentials.password);
+    if (user) {
+      return { token: 'fake_jwt_token_' + Date.now(), user };
+    }
     throw new Error('Email ou senha inválidos');
   }
 
   async register(data: RegisterData): Promise<AuthResponse> {
+    if (BASE_URL) {
+      return http.post<AuthResponse>('/users/register', data);
+    }
     await delay();
-    
-    // TODO: Substituir mock por chamada real
-    // const response = await axios.post('/api/auth/register', data);
-    
-    // Simulação de registro
+    // Simulação de registro (mock)
     if (data.name && data.email && data.password.length >= 6) {
       // Cria novo usuário mockado
       const newUser: User = {
@@ -90,8 +84,24 @@ class ApiService {
 
   // Cursos
   async getCourses(category?: string, search?: string): Promise<Course[]> {
+    if (BASE_URL) {
+      const list = await http.get<Course[]>('/courses');
+      // Filtro client-side para manter API simples aqui
+      let filteredCourses = [...list];
+      if (category && category !== 'Todos') {
+        filteredCourses = filteredCourses.filter(c => c.category === category);
+      }
+      if (search) {
+        const searchLower = search.toLowerCase();
+        filteredCourses = filteredCourses.filter(c =>
+          c.title.toLowerCase().includes(searchLower) ||
+          c.description.toLowerCase().includes(searchLower) ||
+          c.instructor.toLowerCase().includes(searchLower)
+        );
+      }
+      return filteredCourses;
+    }
     await delay();
-    
     let filteredCourses = [...courses];
     
     if (category && category !== 'Todos') {
@@ -111,11 +121,18 @@ class ApiService {
   }
 
   async getCourseById(id: number): Promise<Course | undefined> {
+    if (BASE_URL) {
+      return http.get<Course>(`/courses/${id}`);
+    }
     await delay();
     return courses.find(c => c.id === id);
   }
 
   async toggleFavorite(courseId: number): Promise<void> {
+    if (BASE_URL) {
+      await http.post<void>(`/courses/${courseId}/favorite`);
+      return;
+    }
     await delay(200);
     const course = courses.find(c => c.id === courseId);
     if (course) {
@@ -124,6 +141,9 @@ class ApiService {
   }
 
   async getFavoriteCourses(): Promise<Course[]> {
+    if (BASE_URL) {
+      return http.get<Course[]>('/courses?favorite=true');
+    }
     await delay();
     return courses.filter(c => c.isFavorite);
   }
@@ -145,18 +165,21 @@ class ApiService {
 
   // Usuário
   async getUser(userId?: number): Promise<User> {
+    if (BASE_URL) {
+      const id = userId ?? 0;
+      return http.get<User>(`/users/${id}`);
+    }
     await delay();
-    // TODO: Substituir por chamada real
-    // const response = await axios.get(`/api/users/${userId}`);
     const user = userId ? users.find(u => u.id === userId) : users[0];
     if (!user) throw new Error('Usuário não encontrado');
     return user;
   }
 
   async updateUser(userId: number, data: Partial<User>): Promise<User> {
+    if (BASE_URL) {
+      return http.put<User>(`/users/${userId}`, data);
+    }
     await delay();
-    // TODO: Substituir por chamada real
-    // const response = await axios.put(`/api/users/${userId}`, data);
     const user = users.find(u => u.id === userId);
     if (!user) throw new Error('Usuário não encontrado');
     Object.assign(user, data);
@@ -164,31 +187,33 @@ class ApiService {
   }
 
   async getUserProgress(): Promise<Course[]> {
+    if (BASE_URL) {
+      return http.get<Course[]>(`/users/progress`);
+    }
     await delay();
     return courses.filter(c => c.progress > 0);
   }
 
   // Comentários
   async getComments(courseId: number, lessonId?: number): Promise<Comment[]> {
+    if (BASE_URL) {
+      const query = lessonId !== undefined ? `&lessonId=${lessonId}` : '';
+      return http.get<Comment[]>(`/comments?courseId=${courseId}${query}`);
+    }
     await delay();
-    
     let filtered = comments.filter(c => c.courseId === courseId);
-    
     if (lessonId !== undefined) {
       filtered = filtered.filter(c => c.lessonId === lessonId);
     }
-    
     return filtered;
   }
 
   async addComment(userId: number, courseId: number, content: string, lessonId?: number): Promise<Comment> {
+    if (BASE_URL) {
+      return http.post<Comment>('/comments', { userId, courseId, content, lessonId });
+    }
     await delay();
-    
-    // TODO: Substituir por chamada real
-    // const response = await axios.post('/api/comments', { userId, courseId, content, lessonId });
-    
     const user = users.find(u => u.id === userId) || users[0];
-    
     const newComment: Comment = {
       id: comments.length + 1,
       userId: user.id,
@@ -200,19 +225,24 @@ class ApiService {
       timestamp: new Date().toISOString(),
       likes: 0,
     };
-    
     comments.push(newComment);
     return newComment;
   }
 
   // Certificados
   async getCertificates(): Promise<typeof certificates> {
+    if (BASE_URL) {
+      return http.get<typeof certificates>('/users/certificates');
+    }
     await delay();
     return certificates;
   }
 
   // Ranking
   async getRanking(): Promise<typeof rankingUsers> {
+    if (BASE_URL) {
+      return http.get<typeof rankingUsers>('/ranking');
+    }
     await delay();
     return rankingUsers;
   }

@@ -1,4 +1,4 @@
-export type UserRole = 'student' | 'instructor' | 'admin';
+export type UserRole = 'student' | 'teacher' | 'admin';
 
 export interface User {
   id: number;
@@ -9,12 +9,20 @@ export interface User {
   avatar: string;
   bio: string;
   joinedDate: string;
-  coursesCompleted: number;
-  coursesInProgress: number;
-  totalHoursWatched: number;
-  certificates: number;
-  points: number;
-  rank: number;
+  
+  // Propriedades de Estudante
+  coursesCompleted?: number;
+  coursesInProgress?: number;
+  totalHoursWatched?: number;
+  certificates?: number;
+  points?: number;
+  rank?: number;
+  
+  // Propriedades de Professor
+  totalCourses?: number;
+  totalStudents?: number;
+  averageRating?: number;
+  totalRevenue?: number;
 }
 
 // Usuários mockados para teste
@@ -56,32 +64,28 @@ export const users: User[] = [
     name: 'Prof. Carlos Mendes',
     email: 'carlos@edukanda.ao',
     password: '123456',
-    role: 'instructor',
+    role: 'teacher',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=carlos',
-    bio: 'Professor de Física com 10 anos de experiência',
+    bio: 'Professor de programação com 10 anos de experiência',
     joinedDate: '2023-11-01',
-    coursesCompleted: 0,
-    coursesInProgress: 0,
-    totalHoursWatched: 0,
-    certificates: 0,
-    points: 0,
-    rank: 0,
+    totalCourses: 8,
+    totalStudents: 342,
+    averageRating: 4.8,
+    totalRevenue: 125000,
   },
   {
     id: 4,
     name: 'Prof. João Silva',
     email: 'joao@edukanda.ao',
     password: '123456',
-    role: 'instructor',
+    role: 'teacher',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=joao',
     bio: 'Especialista em Programação e Desenvolvimento Web',
     joinedDate: '2023-10-15',
-    coursesCompleted: 0,
-    coursesInProgress: 0,
-    totalHoursWatched: 0,
-    certificates: 0,
-    points: 0,
-    rank: 0,
+    totalCourses: 5,
+    totalStudents: 198,
+    averageRating: 4.6,
+    totalRevenue: 78000,
   },
   {
     id: 5,
@@ -92,12 +96,6 @@ export const users: User[] = [
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
     bio: 'Administrador da plataforma EduKanda',
     joinedDate: '2023-09-01',
-    coursesCompleted: 0,
-    coursesInProgress: 0,
-    totalHoursWatched: 0,
-    certificates: 0,
-    points: 0,
-    rank: 0,
   },
 ];
 

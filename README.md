@@ -1,190 +1,182 @@
-# 🎓 EduKanda
+# EduKanda Frontend
 
-**Plataforma educacional angolana** voltada para estudantes do ensino médio e universitário, oferecendo cursos rápidos e gratuitos.
+Aplicação frontend do EduKanda, preparada para uso com backend real e com fallback para mocks em desenvolvimento.
 
-## 📋 Sobre o Projeto
+## Requisitos
 
-EduKanda é uma aplicação web moderna desenvolvida com React, TypeScript e TailwindCSS, focada em proporcionar uma experiência de aprendizado fluida e acessível para estudantes angolanos.
+- Node 18+
+- pnpm (recomendado) ou npm/yarn
 
-### ✨ Funcionalidades
-
-- 🔐 **Autenticação completa** - Login e cadastro de usuários
-- 📚 **Catálogo de cursos** - Navegação por categorias (Matemática, Física, Química, Programação, etc)
-- 🔍 **Busca avançada** - Pesquisa de cursos por título, descrição ou instrutor
-- ❤️ **Favoritos** - Sistema de marcação de cursos favoritos
-- 📊 **Acompanhamento de progresso** - Visualização do progresso em cada curso
-- 🎥 **Player de vídeo** - Interface para assistir aulas
-- 💬 **Sistema de comentários** - Interação entre alunos e instrutores
-- 🏆 **Certificados** - Emissão de certificados ao concluir cursos
-- 📈 **Ranking** - Sistema de pontuação e ranking de estudantes
-- 👤 **Perfil do usuário** - Gerenciamento de informações pessoais
-- 🌓 **Tema claro/escuro** - Alternância entre modos de visualização
-- 📱 **Design responsivo** - Funciona perfeitamente em mobile e desktop
-
-## 🛠️ Tecnologias Utilizadas
-
-- **React 18** - Biblioteca JavaScript para interfaces
-- **TypeScript** - Tipagem estática para JavaScript
-- **Vite** - Build tool rápido e moderno
-- **React Router DOM** - Navegação entre páginas
-- **TailwindCSS** - Framework CSS utility-first
-- **Lucide React** - Biblioteca de ícones
-- **Axios** - Cliente HTTP (preparado para integração futura)
-- **Context API** - Gerenciamento de estado global
-
-## 📁 Estrutura do Projeto
-
-```
-src/
-├── assets/          # Imagens e recursos estáticos
-├── components/      # Componentes reutilizáveis
-│   ├── Button.tsx
-│   ├── CourseCard.tsx
-│   ├── Input.tsx
-│   ├── Modal.tsx
-│   ├── Navbar.tsx
-│   ├── ProgressBar.tsx
-│   └── Toast.tsx
-├── context/         # Contextos React (Auth, Theme)
-│   ├── AuthContext.tsx
-│   └── ThemeContext.tsx
-├── data/            # Dados mockados
-│   ├── certificates.ts
-│   ├── courses.ts
-│   └── user.ts
-├── pages/           # Páginas da aplicação
-│   ├── Certificates.tsx
-│   ├── CoursePage.tsx
-│   ├── Home.tsx
-│   ├── LessonPage.tsx
-│   ├── Login.tsx
-│   ├── Onboarding.tsx
-│   ├── Profile.tsx
-│   ├── Progress.tsx
-│   ├── Ranking.tsx
-│   └── Register.tsx
-├── routes/          # Configuração de rotas
-│   └── index.tsx
-├── services/        # Serviços de API (mockados)
-│   └── api.ts
-├── App.tsx          # Componente principal
-└── main.tsx         # Entry point
-
-```
-
-## 🚀 Como Executar
-
-### Pré-requisitos
-
-- Node.js 18+ instalado
-- npm ou yarn
-
-### Instalação
-
-1. Clone o repositório (ou navegue até a pasta do projeto)
+## Instalação e Execução
 
 ```bash
-cd edukanda
-```
-
-2. As dependências já foram instaladas, mas se necessário:
-
-```bash
+pnpm install
+pnpm dev
+# ou
 npm install
-```
-
-3. Inicie o servidor de desenvolvimento:
-
-```bash
 npm run dev
 ```
 
-4. Acesse no navegador:
+## Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
 
 ```
-http://localhost:5173
+VITE_API_URL=http://localhost:8000/api
 ```
 
-## 🎯 Fluxo de Uso
+- Quando `VITE_API_URL` está definido, os serviços usam a API real.
+- Quando não está definido, há fallback para dados mockados existentes.
 
-1. **Onboarding** - 3 telas introdutórias sobre a plataforma
-2. **Login/Cadastro** - Autenticação do usuário (dados mockados)
-3. **Home** - Exploração de cursos com busca e filtros
-4. **Página do Curso** - Detalhes, aulas e comentários
-5. **Página da Aula** - Player de vídeo e materiais complementares
-6. **Progresso** - Acompanhamento dos cursos em andamento
-7. **Certificados** - Visualização e download de certificados
-8. **Ranking** - Classificação dos estudantes
-9. **Perfil** - Gerenciamento de conta e configurações
+## Estrutura de Pastas (parcial)
 
-## 🔑 Credenciais de Teste
+```
+src/
+  components/
+  context/
+  data/                 # mocks existentes
+  hooks/                # hooks customizados (useCourses, useCourse, useUser, useUserProgress)
+  pages/
+    public/
+    student/
+    teacher/
+    admin/
+  routes/
+  services/            # http (Axios) e api
+  types/               # tipos globais (Course, Lesson, User, Comment)
+  utils/
+```
 
-Como os dados são mockados, você pode fazer login com qualquer email e senha (mínimo 6 caracteres):
+## Estrutura de Dados (Mock/API)
 
-- **Email**: qualquer@email.com
-- **Senha**: 123456
+Tipos principais em `src/types`:
 
-## 🎨 Personalização
+```ts
+// UserRole: 'student' | 'teacher' | 'admin'
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  avatar: string;
+  bio: string;
+  joinedDate: string;
+  coursesCompleted: number;
+  coursesInProgress: number;
+  totalHoursWatched: number;
+  certificates: number;
+  points: number;
+  rank: number;
+}
 
-### Cores
+export interface Lesson {
+  id: number;
+  title: string;
+  duration: string;
+  videoUrl: string;
+  completed?: boolean;
+  materials?: Array<{ title: string; url: string; type: string }>
+}
 
-As cores principais podem ser alteradas em `tailwind.config.js`:
+export interface Course {
+  id: number;
+  title: string;
+  category: string;
+  description: string;
+  instructor: string;
+  instructorAvatar?: string;
+  thumbnail?: string;
+  duration?: string;
+  lessonsCount?: number;
+  studentsCount?: number;
+  rating?: number;
+  progress?: number;
+  isFavorite?: boolean;
+  lessons: Lesson[];
+}
 
-```js
-colors: {
-  primary: { /* Azul */ },
-  secondary: { /* Laranja */ },
+export interface Comment {
+  id: number;
+  userId: number;
+  userName: string;
+  userAvatar: string;
+  courseId: number;
+  lessonId?: number;
+  content: string;
+  timestamp: string;
+  likes: number;
 }
 ```
 
-### Dados Mockados
+## Preparado para Backend Real
 
-Para adicionar ou modificar cursos, edite os arquivos em `src/data/`:
+- `src/services/http.ts` (Axios):
+  - Base URL: `VITE_API_URL`.
+  - Interceptor de request adiciona `Authorization: Bearer <token>` quando há `token` no `localStorage`.
+  - Interceptor de response delega tratamento para `handleApiError`.
+- `src/services/api.ts`:
+  - Usa `http` (Axios) quando há `VITE_API_URL`.
+  - Fallback para mocks existentes quando não há.
+- `src/utils/handleApiError.ts`:
+  - Normaliza erros (Axios/fetch) em um formato consistente: `{ message, status, details }`.
 
-- `courses.ts` - Cursos e aulas
-- `user.ts` - Usuários e comentários
-- `certificates.ts` - Certificados
+### Hooks customizados
 
-## 🔄 Integração com Backend Real
+- `useCourses(params?)` – lista de cursos com `loading`/`error`.
+- `useCourse(id)` – detalhe do curso com `loading`/`error`.
+- `useUser(userId?)` – obter/atualizar usuário (`refresh`, `update`).
+- `useUserProgress()` – progresso do usuário (lista de cursos em andamento).
 
-O projeto está preparado para integração fácil com um backend real:
+### Rotas e Guardas
 
-1. Substitua as funções em `src/services/api.ts` por chamadas HTTP reais usando Axios
-2. Configure as URLs da API
-3. Ajuste os tipos TypeScript conforme necessário
+- Uso de React Router v6 com `Outlet` e guardas (público/estudante/professor/admin).
+- Rotas de estudante (exemplos):
+  - `/student/courses`
+  - `/student/course/:id`
+  - `/student/course/:courseId/lesson/:lessonId`
 
-Exemplo:
-
-```typescript
-// De:
-async getCourses() {
-  await delay();
-  return courses;
-}
-
-// Para:
-async getCourses() {
-  const response = await axios.get('/api/courses');
-  return response.data;
-}
-```
-
-## 📦 Build para Produção
+## Scripts úteis
 
 ```bash
-npm run build
+pnpm dev           # modo desenvolvimento
+pnpm build         # build de produção
+pnpm preview       # pré-visualização do build
+pnpm lint          # lint
 ```
 
-Os arquivos otimizados serão gerados na pasta `dist/`.
+## Padrões e Decisões
 
-## 🤝 Contribuindo
+- Tipos globais centralizados em `src/types`.
+- Sem adoção de ShadCN/UI (por escolha do projeto).
+- Interceptores Axios para token JWT e tratamento de erros.
+- Fallback para mocks para facilitar prototipagem.
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
+## Screenshots (opcional)
 
-## 📄 Licença
+- Coloque imagens em `public/screenshots/` e referencie aqui:
 
-Este projeto foi desenvolvido para fins educacionais.
+```
+![Home](public/screenshots/home.png)
+![Courses](public/screenshots/courses.png)
+![Course Detail](public/screenshots/course-detail.png)
+```
 
----
+## Diagrama (opcional – Mermaid)
 
-**Desenvolvido com ❤️ para a educação em Angola**
+```mermaid
+flowchart LR
+  A[Landing] --> B[Login]
+  B --> C[Student Dashboard]
+  C --> D[Courses]
+  D --> E[Course Detail]
+  E --> F[Lesson]
+  C --> G[My Courses]
+  C --> H[Certificates]
+```
+
+## Notas de Desenvolvimento
+
+- Certifique-se de definir `VITE_API_URL` para usar o backend real.
+- O token JWT é salvo em `localStorage` como `token`.
+- Ajuste de CORS pode ser necessário no backend em desenvolvimento.

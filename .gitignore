@@ -22,3 +22,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Tests coverage
+coverage/
+
+# Vite/Turbo caches (if used)
+.vite/
+.turbo/
+
+# Screenshots and temp assets
+public/screenshots/*.psd
+public/screenshots/*.fig
